@@ -29,6 +29,7 @@ void WeatherApi::getData(QNetworkReply* r)
 
     while (!xml.atEnd()) {
         auto k = xml.readNext();
+        (void)k;
         //std::cout << "readNext() returned " << k << "\n";
         //std::cout << "Read " << xml.name().toString().toStdString() << "\n";
         // Station list incoming.
@@ -140,14 +141,16 @@ void WeatherApi::processData(QList<WeatherData> f)
     for (auto& x : info_to_draw.keys()) {
         std::cout << x.toStdString() << ": " << info_to_draw[x].toStdString() << "\n";
     }
-
-    emit readyToDraw(info_to_draw);
+    qs = "changed";
+    emit qsChanged(qs);
+    //emit readyToDraw(info_to_draw);
 }
 
 WeatherApi::WeatherApi()
     : net{}
     , timer{new QTimer(this)}
     , stations{}
+    , qs{"OK"}
 {
     std::cout << "Entering cons\n";
 
@@ -170,13 +173,19 @@ WeatherApi::WeatherApi()
     //parseXmlResponse(k);
     std::cout << "left\n";
 
+    connect(timer, &QTimer::timeout, this, &WeatherApi::changeTestString);
+    timer->start(3000);
 
     // get data
     // register timer
 }
 
-
-
-
+void WeatherApi::changeTestString()
+{
+    static int j = 0;
+    qs = QString("called %1 times").arg(j);
+    emit qsChanged(qs);
+    ++j;
+}
 
 

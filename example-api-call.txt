@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wfs:FeatureCollection
+  timeStamp="2023-05-08T16:43:30Z"
+  numberMatched="1"
+  numberReturned="1"
+  xmlns:wfs="http://www.opengis.net/wfs/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:om="http://www.opengis.net/om/2.0"
+  xmlns:ompr="http://inspire.ec.europa.eu/schemas/ompr/3.0"
+  xmlns:omso="http://inspire.ec.europa.eu/schemas/omso/3.0"
+  xmlns:gml="http://www.opengis.net/gml/3.2"
+  xmlns:gmd="http://www.isotc211.org/2005/gmd"
+  xmlns:gco="http://www.isotc211.org/2005/gco"
+  xmlns:swe="http://www.opengis.net/swe/2.0"
+  xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+  xmlns:sam="http://www.opengis.net/sampling/2.0"
+  xmlns:sams="http://www.opengis.net/samplingSpatial/2.0"
+  xmlns:target="http://xml.fmi.fi/namespace/om/atmosphericfeatures/1.1"
+  xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd
+  http://www.opengis.net/gmlcov/1.0 http://schemas.opengis.net/gmlcov/1.0/gmlcovAll.xsd
+  http://www.opengis.net/sampling/2.0 http://schemas.opengis.net/sampling/2.0/samplingFeature.xsd
+  http://www.opengis.net/samplingSpatial/2.0 http://schemas.opengis.net/samplingSpatial/2.0/spatialSamplingFeature.xsd
+  http://www.opengis.net/swe/2.0 http://schemas.opengis.net/sweCommon/2.0/swe.xsd
+  http://inspire.ec.europa.eu/schemas/ompr/3.0 https://inspire.ec.europa.eu/schemas/ompr/3.0/Processes.xsd
+  http://inspire.ec.europa.eu/schemas/omso/3.0 https://inspire.ec.europa.eu/schemas/omso/3.0/SpecialisedObservations.xsd
+  http://xml.fmi.fi/namespace/om/atmosphericfeatures/1.1 https://xml.fmi.fi/schema/om/atmosphericfeatures/1.1/atmosphericfeatures.xsd">
+
+  <wfs:member>
+    <omso:GridSeriesObservation gml:id="WFS-MpbRmGc4KxP00VaWsId9jtvGJhKJTowroWbbpdOt.Lnl5dsPTTv3c3Trvlw9NGXk6dbeuzpp4b9O7pj39svLDnywtLFlz6d1TTty2p_4Uqho9mMbHy51qRaFOO6dNGTVwzsu7JU07ctqf.FKoYIZzO15fPffyyVOjXl899_LJf39svLvy09MOLZliZmzD0y8.kTM2b8eHZlrUzab8aSu69MzhrbcPiJp59MO7HlpWroQGltw.IvDfj0c5wY5m9ty9Mu.hh5YduXpl5c61umXbwy8sPTryy1id.daHDll58.vLK1tunnz07s9TL46VjTsM5tbuu2fmp9MPTTv3c51GZw2YceXnWRv67OrW49cOzT08yd2bfE1ufTD00791Tzwy1ob.GXdkw9MLc59N_LLk49cvLzf05K3Qs23S6db8XPLy7Yemnfu5unXfLh6aMvJ0629dnTTw36d3THv7ZeWHPlaHTTty0.mXhM0Omnbltb92WsarUhg">
+
+                 <om:phenomenonTime>
+        <gml:TimePeriod gml:id="time1-1-1">
+          <gml:beginPosition>2023-05-08T01:58:00Z</gml:beginPosition>
+          <gml:endPosition>2023-05-08T02:00:00Z</gml:endPosition>
+        </gml:TimePeriod>
+      </om:phenomenonTime>
+      <om:resultTime>
+        <gml:TimeInstant gml:id="time2-1-1">
+          <gml:timePosition>2023-05-08T02:00:00Z</gml:timePosition>
+        </gml:TimeInstant>
+      </om:resultTime>
+
+     <om:procedure xlink:href="http://xml.fmi.fi/inspire/process/opendata"/>
+                 <om:parameter>
+                <om:NamedValue>
+                    <om:name xlink:href="https://inspire.ec.europa.eu/codeList/ProcessParameterValue/value/groundObservation/observationIntent"/>
+                    <om:value>
+			atmosphere
+                    </om:value>
+                </om:NamedValue>
+            </om:parameter>
+
+     <om:observedProperty  xlink:href="https://opendata.fmi.fi/meta?observableProperty=observation&amp;param=temperature,ws,pressure&amp;language=eng"/>
+     	<om:featureOfInterest>
+        <sams:SF_SpatialSamplingFeature gml:id="sampling-feature-1-1-fmisid">
+
+          <sam:sampledFeature>
+		<target:LocationCollection gml:id="sampled-target-1-1">
+		    <target:member>
+		    <target:Location gml:id="obsloc-fmisid-101776-pos">
+		        <gml:identifier codeSpace="http://xml.fmi.fi/namespace/stationcode/fmisid">101776</gml:identifier>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/name">Hailuoto Keskikylä</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/geoid">-16000042</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/wmo">2874</gml:name>
+			<target:representativePoint xlink:href="#point-101776"/>					
+			
+			
+			<target:region codeSpace="http://xml.fmi.fi/namespace/location/region">Hailuoto</target:region>	   			
+			
+		    </target:Location></target:member>
+		    <target:member>
+		    <target:Location gml:id="obsloc-fmisid-101784-pos">
+		        <gml:identifier codeSpace="http://xml.fmi.fi/namespace/stationcode/fmisid">101784</gml:identifier>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/name">Hailuoto Marjaniemi</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/geoid">-16000059</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/wmo">2873</gml:name>
+			<target:representativePoint xlink:href="#point-101784"/>					
+			
+			
+			<target:region codeSpace="http://xml.fmi.fi/namespace/location/region">Hailuoto</target:region>	   			
+			
+		    </target:Location></target:member>
+		    <target:member>
+		    <target:Location gml:id="obsloc-fmisid-101786-pos">
+		        <gml:identifier codeSpace="http://xml.fmi.fi/namespace/stationcode/fmisid">101786</gml:identifier>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/name">Oulu lentoasema</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/geoid">-101786</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/wmo">2875</gml:name>
+			<target:representativePoint xlink:href="#point-101786"/>					
+			
+			
+			<target:region codeSpace="http://xml.fmi.fi/namespace/location/region">Oulu</target:region>	   			
+			
+		    </target:Location></target:member>
+		    <target:member>
+		    <target:Location gml:id="obsloc-fmisid-101787-pos">
+		        <gml:identifier codeSpace="http://xml.fmi.fi/namespace/stationcode/fmisid">101787</gml:identifier>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/name">Siikajoki Ruukki</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/geoid">-16000069</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/wmo">2803</gml:name>
+			<target:representativePoint xlink:href="#point-101787"/>					
+			
+			
+			<target:region codeSpace="http://xml.fmi.fi/namespace/location/region">Siikajoki</target:region>	   			
+			
+		    </target:Location></target:member>
+		    <target:member>
+		    <target:Location gml:id="obsloc-fmisid-101794-pos">
+		        <gml:identifier codeSpace="http://xml.fmi.fi/namespace/stationcode/fmisid">101794</gml:identifier>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/name">Oulu Vihreäsaari satama</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/geoid">-16000100</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/wmo">2876</gml:name>
+			<target:representativePoint xlink:href="#point-101794"/>					
+			
+			
+			<target:region codeSpace="http://xml.fmi.fi/namespace/location/region">Oulu</target:region>	   			
+			
+		    </target:Location></target:member>
+		    <target:member>
+		    <target:Location gml:id="obsloc-fmisid-101799-pos">
+		        <gml:identifier codeSpace="http://xml.fmi.fi/namespace/stationcode/fmisid">101799</gml:identifier>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/name">Oulu Oulunsalo Pellonpää</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/geoid">-16000201</gml:name>
+			<gml:name codeSpace="http://xml.fmi.fi/namespace/locationcode/wmo">2851</gml:name>
+			<target:representativePoint xlink:href="#point-101799"/>					
+			
+			
+			<target:region codeSpace="http://xml.fmi.fi/namespace/location/region">Oulu</target:region>	   			
+			
+		    </target:Location></target:member>
+		</target:LocationCollection>
+ 	   </sam:sampledFeature>
+          <sams:shape>
+            <gml:MultiPoint gml:id="mp-1-1-fmisid">
+              <gml:pointMember>
+              <gml:Point gml:id="point-101776" srsName="http://www.opengis.net/def/crs/EPSG/0/4258" srsDimension="2">
+                <gml:name>Hailuoto Keskikylä</gml:name>
+                <gml:pos>65.01967 24.72758 </gml:pos>
+            </gml:Point>
+	    </gml:pointMember>
+              <gml:pointMember>
+              <gml:Point gml:id="point-101784" srsName="http://www.opengis.net/def/crs/EPSG/0/4258" srsDimension="2">
+                <gml:name>Hailuoto Marjaniemi</gml:name>
+                <gml:pos>65.03975 24.56118 </gml:pos>
+            </gml:Point>
+	    </gml:pointMember>
+              <gml:pointMember>
+              <gml:Point gml:id="point-101786" srsName="http://www.opengis.net/def/crs/EPSG/0/4258" srsDimension="2">
+                <gml:name>Oulu lentoasema</gml:name>
+                <gml:pos>64.93503 25.33920 </gml:pos>
+            </gml:Point>
+	    </gml:pointMember>
+              <gml:pointMember>
+              <gml:Point gml:id="point-101787" srsName="http://www.opengis.net/def/crs/EPSG/0/4258" srsDimension="2">
+                <gml:name>Siikajoki Ruukki</gml:name>
+                <gml:pos>64.68421 25.08919 </gml:pos>
+            </gml:Point>
+	    </gml:pointMember>
+              <gml:pointMember>
+              <gml:Point gml:id="point-101794" srsName="http://www.opengis.net/def/crs/EPSG/0/4258" srsDimension="2">
+                <gml:name>Oulu Vihreäsaari satama</gml:name>
+                <gml:pos>65.00640 25.39321 </gml:pos>
+            </gml:Point>
+	    </gml:pointMember>
+              <gml:pointMember>
+              <gml:Point gml:id="point-101799" srsName="http://www.opengis.net/def/crs/EPSG/0/4258" srsDimension="2">
+                <gml:name>Oulu Oulunsalo Pellonpää</gml:name>
+                <gml:pos>64.93698 25.37299 </gml:pos>
+            </gml:Point>
+	    </gml:pointMember>
+	    </gml:MultiPoint>
+          </sams:shape>
+        </sams:SF_SpatialSamplingFeature>
+      </om:featureOfInterest>
+
+           <om:result>
+        <gmlcov:MultiPointCoverage gml:id="mpcv1-1-1">
+          <gml:domainSet>
+            <gmlcov:SimpleMultiPoint gml:id="mp1-1-1" srsName="http://xml.fmi.fi/gml/crs/compoundCRS.php?crs=4258&amp;time=unixtime" srsDimension="3">
+              <gmlcov:positions>
+                65.01967 24.72758  1683511200
+                65.03975 24.56118  1683511080
+                65.03975 24.56118  1683511140
+                65.03975 24.56118  1683511200
+                64.93503 25.33920  1683511080
+                64.93503 25.33920  1683511140
+                64.93503 25.33920  1683511200
+                64.68421 25.08919  1683511200
+                65.00640 25.39321  1683511080
+                65.00640 25.39321  1683511140
+                65.00640 25.39321  1683511200
+                64.93698 25.37299  1683511200
+                </gmlcov:positions>
+            </gmlcov:SimpleMultiPoint>
+          </gml:domainSet>
+          <gml:rangeSet>
+            <gml:DataBlock>
+              <gml:rangeParameters/>
+              <gml:doubleOrNilReasonTupleList>
+                1.6 NaN NaN 
+                0.7 7.5 1024.0 
+                0.7 7.4 1024.0 
+                0.8 7.4 1024.0 
+                2.7 1.6 1024.0 
+                2.7 1.6 1023.9 
+                2.8 1.6 1023.9 
+                2.5 4.1 1024.4 
+                3.4 3.6 1024.0 
+                3.3 3.6 1024.0 
+                3.3 3.6 1024.0 
+                1.1 1.0 1023.8 
+                </gml:doubleOrNilReasonTupleList>
+            </gml:DataBlock>
+          </gml:rangeSet>
+          <gml:coverageFunction>
+            <gml:CoverageMappingRule>
+              <gml:ruleDefinition>Linear</gml:ruleDefinition>
+            </gml:CoverageMappingRule>
+          </gml:coverageFunction>
+          <gmlcov:rangeType>
+            <swe:DataRecord>
+              <swe:field name="temperature"  xlink:href="https://opendata.fmi.fi/meta?observableProperty=observation&amp;param=temperature&amp;language=eng"/>
+              <swe:field name="ws"  xlink:href="https://opendata.fmi.fi/meta?observableProperty=observation&amp;param=ws&amp;language=eng"/>
+              <swe:field name="pressure"  xlink:href="https://opendata.fmi.fi/meta?observableProperty=observation&amp;param=pressure&amp;language=eng"/>
+              </swe:DataRecord>
+          </gmlcov:rangeType>
+        </gmlcov:MultiPointCoverage>
+      </om:result>
+
+    </omso:GridSeriesObservation>
+  </wfs:member>
+</wfs:FeatureCollection>
