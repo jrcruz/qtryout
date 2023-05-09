@@ -17,39 +17,31 @@ Window {
 
     Connections {
         target: WeatherAPI
-        function onValuesChanged(val) {
-            console.log("tsukihi pls")
-            //max_t.text = val[0]
-            //max_w.text = val[1]
-            //min_p.text = val[2]
-        }
-        function onLChanged(v) {
-            max_t.text = "Highest temperature: " + v["highest_temperature"][0]
-            const tc = v["highest_temperature"][1]
+
+        function onSendGoalList(goal_list) {
+            max_t.text = "Highest temperature: " + goal_list["highest_temperature"][0]
+            const tc = goal_list["highest_temperature"][1]
             station_for_temp.coordinate = QtPositioning.coordinate(tc.x + coordinateJitter(), tc.y + coordinateJitter())
 
-            max_w.text = "Highest wind speed:" + v["strongest_wind"][0]
-            const wc = v["strongest_wind"][1]
+            max_w.text = "Highest wind speed:" + goal_list["strongest_wind"][0]
+            const wc = goal_list["strongest_wind"][1]
             station_for_wind.coordinate = QtPositioning.coordinate(wc.x + coordinateJitter(), wc.y + coordinateJitter())
 
-            min_p.text = "Lowest pressure: " + v["lowest_pressure"][0]
-            const pc = v["lowest_pressure"][1]
+            min_p.text = "Lowest pressure: " + goal_list["lowest_pressure"][0]
+            const pc = goal_list["lowest_pressure"][1]
             station_for_pres.coordinate = QtPositioning.coordinate(pc.x + coordinateJitter(), pc.y + coordinateJitter())
-
-            /*
-            max_t.text = "Highest temperature:" + v[0]
-            station_for_temp.coordinate = QtPositioning.coordinate(v[1].x + coordinateJitter(), v[1].y + coordinateJitter())
-            max_w.text = "Highest wind speed:" + v[2]
-            station_for_wind.coordinate = QtPositioning.coordinate(v[3].x + coordinateJitter(), v[3].y + coordinateJitter())
-            min_p.text = "Lowest pressure: " + v[4]
-            station_for_pres.coordinate = QtPositioning.coordinate(v[5].x + coordinateJitter(), v[5].y + coordinateJitter())
-            */
         }
-        function onSendFullHog(hog) {
+
+        function onSendFullStationList(full_station_list) {
             tsu.text = "KIHI"
-            for (let j = 0; j < hog.length; ++j) {
-                let station = hog[j]
-                station_list.children[j].text = station["station_name"] + "(" + station["station_coor"].x + ", " + station["station_coor"].y + "): " + station["temperature"] + "ºC, " + station["pressure"] + "hPa, " + station["windspeed"] + "m/s"
+            for (let j = 0; j < full_station_list.length; ++j) {
+                const n  = full_station_list[j]["station_name"]
+                const cx = full_station_list[j]["station_coor"].x.toFixed(2)
+                const cy = full_station_list[j]["station_coor"].y.toFixed(2)
+                const t  = full_station_list[j]["temperature"].toFixed(2)
+                const p  = full_station_list[j]["pressure"].toFixed(2)
+                const w  = full_station_list[j]["windspeed"].toFixed(2)
+                station_list.children[j].text = `${n} (${cx}, ${cy}): ${t}ºC, ${p}hPa, ${w}m/s`
             }
         }
     }
