@@ -29,7 +29,7 @@ class WeatherApi : public QObject
 
     QNetworkAccessManager _net;
     QTimer _timer;
-    QHash<QPointF, QString> _stations;
+    QHash<QPointF, QString> _coor_to_station_name;
 
 public:
     WeatherApi();

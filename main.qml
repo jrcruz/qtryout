@@ -11,8 +11,8 @@ Window {
     title: map.center + " zoom " + map.zoomLevel.toFixed(3)
            + " min " + map.minimumZoomLevel + " max " + map.maximumZoomLevel
 
-    function coordinateJitter() {
-        return Math.random() / 1000
+    function jitterCoordinate(c) {
+        return c + Math.random() / 1000
     }
 
     Connections {
@@ -21,15 +21,15 @@ Window {
         function onSendGoalList(goal_list) {
             max_t.text = "Highest temperature: " + goal_list["highest_temperature"][0]
             const tc = goal_list["highest_temperature"][1]
-            station_for_temp.coordinate = QtPositioning.coordinate(tc.x + coordinateJitter(), tc.y + coordinateJitter())
+            station_for_temp.coordinate = QtPositioning.coordinate(jitterCoordinate(tc.x), jitterCoordinate(tc.y))
 
-            max_w.text = "Highest wind speed:" + goal_list["strongest_wind"][0]
+            max_w.text = "Highest wind speed: " + goal_list["strongest_wind"][0]
             const wc = goal_list["strongest_wind"][1]
-            station_for_wind.coordinate = QtPositioning.coordinate(wc.x + coordinateJitter(), wc.y + coordinateJitter())
+            station_for_wind.coordinate = QtPositioning.coordinate(jitterCoordinate(wc.x), jitterCoordinate(wc.y))
 
             min_p.text = "Lowest pressure: " + goal_list["lowest_pressure"][0]
             const pc = goal_list["lowest_pressure"][1]
-            station_for_pres.coordinate = QtPositioning.coordinate(pc.x + coordinateJitter(), pc.y + coordinateJitter())
+            station_for_pres.coordinate = QtPositioning.coordinate(jitterCoordinate(pc.x), jitterCoordinate(pc.y))
         }
 
         function onSendFullStationList(full_station_list) {
@@ -55,7 +55,6 @@ Window {
         id: map
         anchors.fill: parent
         plugin: mapPlugin
-        //center: QtPositioning.coordinate(59.91, 10.75) // Oslo
         center: QtPositioning.coordinate(65.012755, 25.478793) // Oulu
         zoomLevel: 10
         property var startCentroid
