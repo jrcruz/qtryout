@@ -8,6 +8,7 @@
 #include <QPointF>
 #include <optional>
 #include <QNetworkAccessManager>
+#include <QVariantList>
 #include <QtQml/qqml.h>
 
 
@@ -16,15 +17,9 @@ constexpr int OULU_MAX_STATIONS = 6;
 struct WeatherData {
     QPointF coor;
     float temperature;
-    std::optional<float> windspeed;
-    std::optional<float> pressure;
+    float windspeed;
+    float pressure;
 };
-
-
-
-
-
-
 
 
 class WeatherApi : public QObject
@@ -33,48 +28,33 @@ class WeatherApi : public QObject
     QML_SINGLETON
 
     QNetworkAccessManager net;
-    QTimer* timer;
+    QTimer timer;
     QHash<QPointF, QString> stations;
 
 public:
     WeatherApi();
 
-    Q_PROPERTY(QString qs READ readQs NOTIFY qsChanged)
-    QString qs;
-    QString readQs() const { return qs; }
-
     Q_PROPERTY(QList<QString> values MEMBER values WRITE setValues NOTIFY valuesChanged)
     QList<QString> values;
     void setValues(QList<QString> m) { values = m; emit valuesChanged(values);}
 
-    Q_PROPERTY(QHash<QString, QString> valueshash MEMBER valueshash WRITE setValueshash NOTIFY valueshashChanged)
-    QHash<QString, QString> valueshash;
-    void setValueshash(QHash<QString, QString> m) { valueshash = m; emit valueshashChanged(valueshash);}
 
-
-    Q_PROPERTY(QList<QPair<QString,QPointF>> l MEMBER l WRITE setL NOTIFY lChanged)
-    QList<QPair<QString, QPointF>> l;
-    void setL(QList<QPair<QString, QPointF>> m) { l = m; emit lChanged(l);}
-
-
-
+    Q_PROPERTY(QVariantList l MEMBER l WRITE setL NOTIFY lChanged)
+    QVariantList l;
+    void setL(QVariantList m) { l = m; emit lChanged(l);}
 
 public slots:
     void getData(QNetworkReply* r); // emits processData
     void processData(QList<WeatherData>); //emits readyToDraw
-
-    void changeTestString();
-
+    void makeRequest();
 
 signals:
     // sent by getData, caught by processData
     void readyToProcessData(QList<WeatherData>);
 
     // sent by processData, caught by qml. Send only the final data (i.e., 3 stations); qml just draws.
-    void readyToDraw(QHash<QString, QString>); // QHash size 3
+    //void readyToDraw(QHash<QString, QString>); // QHash size 3
 
-    void qsChanged(QString new_qs);
     void valuesChanged(QList<QString> new_values);
-    void valueshashChanged(QHash<QString,QString> new_values);
-    void lChanged(QList<QPair<QString,QPointF>> new_l);
+    void lChanged(QVariantList new_l);
 };
