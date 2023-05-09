@@ -11,7 +11,7 @@
 #include <QtQml/qqml.h>
 
 
-
+constexpr int OULU_MAX_STATIONS = 6;
 
 struct WeatherData {
     QPointF coor;
@@ -19,6 +19,7 @@ struct WeatherData {
     std::optional<float> windspeed;
     std::optional<float> pressure;
 };
+
 
 
 
@@ -42,6 +43,22 @@ public:
     QString qs;
     QString readQs() const { return qs; }
 
+    Q_PROPERTY(QList<QString> values MEMBER values WRITE setValues NOTIFY valuesChanged)
+    QList<QString> values;
+    void setValues(QList<QString> m) { values = m; emit valuesChanged(values);}
+
+    Q_PROPERTY(QHash<QString, QString> valueshash MEMBER valueshash WRITE setValueshash NOTIFY valueshashChanged)
+    QHash<QString, QString> valueshash;
+    void setValueshash(QHash<QString, QString> m) { valueshash = m; emit valueshashChanged(valueshash);}
+
+
+    Q_PROPERTY(QList<QPair<QString,QPointF>> l MEMBER l WRITE setL NOTIFY lChanged)
+    QList<QPair<QString, QPointF>> l;
+    void setL(QList<QPair<QString, QPointF>> m) { l = m; emit lChanged(l);}
+
+
+
+
 public slots:
     void getData(QNetworkReply* r); // emits processData
     void processData(QList<WeatherData>); //emits readyToDraw
@@ -57,4 +74,7 @@ signals:
     void readyToDraw(QHash<QString, QString>); // QHash size 3
 
     void qsChanged(QString new_qs);
+    void valuesChanged(QList<QString> new_values);
+    void valueshashChanged(QHash<QString,QString> new_values);
+    void lChanged(QList<QPair<QString,QPointF>> new_l);
 };

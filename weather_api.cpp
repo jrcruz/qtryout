@@ -13,6 +13,8 @@
 #include <iostream>
 #include <algorithm>
 
+
+
 uint qHash(QPointF p, uint seed)
 {
     return qHash(qHash(p.x(), seed) + qHash(p.y(), seed), seed);
@@ -28,17 +30,14 @@ void WeatherApi::getData(QNetworkReply* r)
     QString data;
 
     while (!xml.atEnd()) {
-        auto k = xml.readNext();
-        (void)k;
-        //std::cout << "readNext() returned " << k << "\n";
-        //std::cout << "Read " << xml.name().toString().toStdString() << "\n";
+        xml.readNext();
         // Station list incoming.
         if (xml.name() == "Point") {
             // Only create station map if it doesn't exist.
-            //if (!stations.empty()) {
-            //    xml.skipCurrentElement();
-            //}
-            //else {
+            if (stations.size() == OULU_MAX_STATIONS) {
+                xml.skipCurrentElement();
+            }
+            else {
                 xml.readNextStartElement(); // Go down to X.
                 QString station_name = xml.readElementText(); // Name.
                 xml.readNextStartElement(); // Go sideways to Y.
@@ -47,10 +46,9 @@ void WeatherApi::getData(QNetworkReply* r)
 
                 auto pos_pair = station_location.split(" ");
                 QPointF p(pos_pair[0].toFloat(), pos_pair[1].toFloat());
-                std::cout << pos_pair[0].toStdString() << " ; " << pos_pair[1].toStdString() << "\n";
                 stations[p] = station_name;
                 xml.skipCurrentElement(); // Get out.
-            //}
+            }
         }
         // Single line with station x, y and unix time for each measurement. the order is the same as the data
         else if (xml.name() == "SimpleMultiPoint") {
@@ -112,24 +110,30 @@ void WeatherApi::getData(QNetworkReply* r)
     emit readyToProcessData(measurements);
 }
 
-void WeatherApi::processData(QList<WeatherData> f)
+void WeatherApi::processData(QList<WeatherData> measurements)
 {
     std::cout << "in process data. printing full weather data\n";
-    for (auto& x : f) {
+    for (auto& x : measurements) {
         std::cout << x.coor.x() << ", " << x.coor.y() << ":\n";
         std::cout << "t = " << x.temperature << ", p = " << x.pressure.value_or(-1) << ", w = " << x.windspeed.value_or(-1) << "\n";
     }
 
-    QPointF max_temperature_coor = std::max_element(f.begin(), f.end(), [](const WeatherData& w1, const WeatherData& w2) {
-       return w1.temperature < w2.temperature;
+    QPointF max_temperature_coor = std::max_element(measurements.cbegin(),
+                                                    measurements.cend(),
+        [](const WeatherData& w1, const WeatherData& w2) {
+            return w1.temperature < w2.temperature;
     })->coor;
 
-    QPointF max_wind_coor = std::max_element(f.begin(), f.end(), [](WeatherData& w1, WeatherData& w2) {
-       return w1.windspeed < w2.windspeed;
+    QPointF max_wind_coor = std::max_element(measurements.cbegin(),
+                                             measurements.cend(),
+        [](const WeatherData& w1, const WeatherData& w2) {
+            return w1.windspeed < w2.windspeed;
     })->coor;
 
-    QPointF min_pressure_coor = std::min_element(f.begin(), f.end(), [](WeatherData& w1, WeatherData& w2) {
-       return w1.pressure < w2.pressure;
+    QPointF min_pressure_coor = std::min_element(measurements.cbegin(),
+                                                 measurements.cend(),
+        [](const WeatherData& w1, const WeatherData& w2) {
+            return w1.pressure < w2.pressure;
     })->coor;
 
     QHash<QString, QString> info_to_draw{
@@ -143,7 +147,19 @@ void WeatherApi::processData(QList<WeatherData> f)
     }
     qs = "changed";
     emit qsChanged(qs);
-    //emit readyToDraw(info_to_draw);
+    emit readyToDraw(info_to_draw);
+    setValues({"hi", "bye", "what"});
+
+    QList<QPair<QString, QPointF>> f;
+    f.append(QPair<QString,QPointF>(stations[max_temperature_coor], max_temperature_coor));
+    f.append(QPair<QString,QPointF>(stations[max_wind_coor], max_wind_coor));
+    f.append(QPair<QString,QPointF>(stations[min_pressure_coor], min_pressure_coor));
+
+    //         {stations[max_wind_coor], max_wind_coor},
+      //       {stations[min_pressure_coor], min_pressure_coor}
+
+    setL(f);
+    setValueshash(info_to_draw);
 }
 
 WeatherApi::WeatherApi()
@@ -151,6 +167,8 @@ WeatherApi::WeatherApi()
     , timer{new QTimer(this)}
     , stations{}
     , qs{"OK"}
+    , values{}
+    , valueshash{}
 {
     std::cout << "Entering cons\n";
 
