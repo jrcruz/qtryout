@@ -67,13 +67,10 @@ void WeatherApi::getData(QNetworkReply* r)
         }
     }
     std::cout << "end" << std::endl;
+    //std::cout << positions.simplified().size() << "\n" << positions.simplified().toStdString() << "\n";
+    //std::cout << data.simplified().size() << "\n" << data.simplified().toStdString() << "\n";
 
-    std::cout << positions.simplified().size() << "\n"
-              << positions.simplified().toStdString() << "\n";
-    std::cout << data.simplified().size() << "\n"
-              << data.simplified().toStdString() << "\n";
-
-    std::cout << std::endl;
+    //std::cout << std::endl;
     QList<WeatherData> measurements;
     QStringList pos_list{positions.simplified().split(" ")};
     QStringList data_list{data.simplified().split(" ")};
@@ -87,14 +84,15 @@ void WeatherApi::getData(QNetworkReply* r)
         data_step += 3, position_step += 3)
     {
         QPointF station_coor{pos_list[position_step].toFloat(), pos_list[position_step + 1].toFloat()};
+        int measured_at = pos_list[position_step].toInt();
 
         if (station_time.contains(station_coor)) {
-            if (station_time[station_coor] > pos_list[position_step].toInt()) {
+            if (station_time[station_coor] > measured_at) {
                 replace = true;
             }
             continue;
         }
-        station_time[station_coor] = pos_list[position_step].toInt();
+        station_time[station_coor] = measured_at;
 
         float temperature = data_list[data_step].toFloat();
         float pressure = data_list[data_step + 1].toFloat();
@@ -106,7 +104,9 @@ void WeatherApi::getData(QNetworkReply* r)
             windspeed = std::numeric_limits<float>::min();
         }
         WeatherData d{
+            stations[station_coor],
             station_coor,
+            measured_at,
             temperature,
             pressure,
             windspeed
@@ -125,55 +125,72 @@ void WeatherApi::getData(QNetworkReply* r)
     emit readyToProcessData(measurements);
 }
 
+void WeatherApi::parseData(QString locations, QString data) {
+
+}
+
 void WeatherApi::processData(QList<WeatherData> measurements)
 {
-    std::cout << "in process data. printing full weather data\n";
+    // Send updated list of measurements first.
+    QVariantList all_stations_data;
+    for (const WeatherData& measurement : measurements) {
+        QVariantMap station_variant;
+        station_variant.insert("station_name", measurement.station_name);
+        station_variant.insert("station_coor", measurement.station_coor);
+        station_variant.insert("temperature", measurement.temperature);
+        station_variant.insert("pressure", measurement.pressure);
+        station_variant.insert("windspeed", measurement.windspeed);
+        all_stations_data.append(station_variant);
+    }
+    setHog(all_stations_data);
+
     for (auto& x : measurements) {
-        std::cout << "(" << stations[x.coor].toStdString() << ") " << x.coor.x() << ", " << x.coor.y() << ":\n";
+        std::cout << "(" << stations[x.station_coor].toStdString() << ") " << x.station_coor.x() << ", " << x.station_coor.y() << ":\n";
         std::cout << "t = " << x.temperature << ", p = " << x.pressure << ", w = " << x.windspeed << "\n";
     }
 
+    // Then send goal list.
     QPointF max_temperature_coor = std::max_element(measurements.cbegin(),
                                                     measurements.cend(),
         [](const WeatherData& w1, const WeatherData& w2) {
             return w1.temperature < w2.temperature;
-    })->coor;
+    })->station_coor;
 
     QPointF max_wind_coor = std::max_element(measurements.cbegin(),
                                              measurements.cend(),
         [](const WeatherData& w1, const WeatherData& w2) {
             return w1.windspeed < w2.windspeed;
-    })->coor;
+    })->station_coor;
 
     QPointF min_pressure_coor = std::min_element(measurements.cbegin(),
                                                  measurements.cend(),
         [](const WeatherData& w1, const WeatherData& w2) {
             return w1.pressure < w2.pressure;
-    })->coor;
+    })->station_coor;
 
-    QHash<QString, QString> info_to_draw{
-        {"highest temperature", stations[max_temperature_coor]},
-        {"strongest wind", stations[max_wind_coor]},
-        {"lowest pressure", stations[min_pressure_coor]}
+    std::cout << "highest temperature: " << stations[max_temperature_coor].toStdString() << "\n"
+              << "strongest wind: "      << stations[max_wind_coor].toStdString() << "\n"
+              << "lowest pressure: "     << stations[min_pressure_coor].toStdString() << "\n";
+
+    QVariantMap ff{
+        {"highest_temperature", QVariantList{stations[max_temperature_coor], max_temperature_coor}},
+        {"strongest_wind", QVariantList{stations[max_wind_coor], max_wind_coor}},
+        {"lowest_pressure", QVariantList{stations[min_pressure_coor], min_pressure_coor}}
     };
+    setL(ff);
 
-    for (auto& x : info_to_draw.keys()) {
-        std::cout << x.toStdString() << ": " << info_to_draw[x].toStdString() << "\n";
-    }
-
-    setValues({"hi", "bye", "what"});
 
     QVariantList f;
     f.append(QVariantList{stations[max_temperature_coor], max_temperature_coor});
     f.append(QVariantList{stations[max_wind_coor], max_wind_coor});
     f.append(QVariantList{stations[min_pressure_coor], min_pressure_coor});
-    setL(f);
+    //setL(f);
 }
 
 void WeatherApi::makeRequest()
 {
     //QUrl endpoint("https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&parameters=temperature,ws,pressure&storedquery_id=fmi::observations::weather::multipointcoverage&place=oulu&starttime=2023-05-08T01:58:00Z&endtime=2023-05-08T02:00:00Z&maxlocations=10");
-//https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&parameters=temperature,ws,pressure&storedquery_id=fmi::observations::weather::multipointcoverage&place=oulu&starttime=2023-05-08T01:58:00Z&endtime=2023-05-08T02:00:00Z&maxlocations=10
+    //https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&parameters=temperature,ws,pressure&storedquery_id=fmi::observations::weather::multipointcoverage&place=oulu&starttime=2023-05-08T01:58:00Z&endtime=2023-05-08T02:00:00Z&maxlocations=10
 
     QUrl endpoint("http://opendata.fmi.fi/wfs");
     QUrlQuery query;
@@ -184,15 +201,28 @@ void WeatherApi::makeRequest()
     query.addQueryItem("storedquery_id", "fmi::observations::weather::multipointcoverage");
     query.addQueryItem("place", "oulu");
     query.addQueryItem("maxlocations", "10");
-    query.addQueryItem("starttime", "2023-05-08T01:58:00%2b03:00");// must escape + to %2b
-    query.addQueryItem("endtime", "2023-05-08T02:00:00%2b03:00");
+
+    QDateTime end_time{QDateTime::currentDateTimeUtc()};
+    //end_time = end_time.addSecs(3 * 60 * 60);
+    end_time.setOffsetFromUtc(3 * 60 * 60);
+
+    QDateTime start_time{end_time
+        //.addSecs(3 * 60 * 60) // have to set offset manually
+        .addSecs(- 15 * 60)}; // start time is 15 mins before now
+    start_time.setOffsetFromUtc(3 * 60 * 60);
+
+    QString end_time_string{end_time.toString(Qt::ISODate)};
+    end_time_string.replace('+', "%2b");
+    QString start_time_string{start_time.toString(Qt::ISODate)};
+    start_time_string.replace('+', "%2b");
+
+
+    std::cout << "start string: " << start_time_string.toStdString() << "\n";
+    std::cout << "end string: " << end_time_string.toStdString() << "\n";
+
+    query.addQueryItem("starttime", start_time_string);
+    query.addQueryItem("endtime", end_time_string);
     endpoint.setQuery(query);
-
-    QDateTime dt{QDateTime::currentDateTimeUtc()};
-    dt = dt.addSecs(3 * 60 * 60);
-    dt.setOffsetFromUtc(3 * 60 * 60);
-
-    std::cout << "date: " << dt.toString(Qt::ISODate).toStdString() << "\n";
 
     net.get(QNetworkRequest(endpoint));
     // signal "finished" is processed by processData
@@ -211,5 +241,5 @@ WeatherApi::WeatherApi()
     makeRequest();
 
     connect(&timer, &QTimer::timeout, this, &WeatherApi::makeRequest);
-    timer.start(3000);
+    timer.start(5000);
 }

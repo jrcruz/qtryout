@@ -15,7 +15,9 @@
 constexpr int OULU_MAX_STATIONS = 6;
 
 struct WeatherData {
-    QPointF coor;
+    QString station_name;
+    QPointF station_coor;
+    int measurement_time;
     float temperature;
     float windspeed;
     float pressure;
@@ -39,14 +41,23 @@ public:
     void setValues(QList<QString> m) { values = m; emit valuesChanged(values);}
 
 
-    Q_PROPERTY(QVariantList l MEMBER l WRITE setL NOTIFY lChanged)
-    QVariantList l;
-    void setL(QVariantList m) { l = m; emit lChanged(l);}
+    Q_PROPERTY(QVariantMap l MEMBER l WRITE setL NOTIFY lChanged)
+    QVariantMap l;
+    void setL(QVariantMap m) { l = m; emit lChanged(l);}
+
+    Q_PROPERTY(QVariantList hog MEMBER hog WRITE setHog NOTIFY sendFullHog)
+    QVariantList hog;
+    void setHog(QVariantList m) { hog = m; emit sendFullHog(hog);}
 
 public slots:
-    void getData(QNetworkReply* r); // emits processData
-    void processData(QList<WeatherData>); //emits readyToDraw
+    // receives. emits
     void makeRequest();
+    // receives. emits processData
+    void getData(QNetworkReply* r);
+    // receives.
+    void parseData(QString locations, QString data);
+    // receives.
+    void processData(QList<WeatherData>); //emits readyToDraw
 
 signals:
     // sent by getData, caught by processData
@@ -56,5 +67,7 @@ signals:
     //void readyToDraw(QHash<QString, QString>); // QHash size 3
 
     void valuesChanged(QList<QString> new_values);
-    void lChanged(QVariantList new_l);
+    void lChanged(QVariantMap new_l);
+
+    void sendFullHog(QVariantList bro);
 };
