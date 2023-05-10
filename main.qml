@@ -35,15 +35,17 @@ Window {
         function onSendFullStationList(full_station_list) {
             for (let j = 0; j < full_station_list.length; ++j) {
                 const n  = full_station_list[j]["station_name"]
-                const cx = full_station_list[j]["station_coor"].x.toFixed(2)
-                const cy = full_station_list[j]["station_coor"].y.toFixed(2)
+                //const cx = full_station_list[j]["station_coor"].x.toFixed(2)
+                //const cy = full_station_list[j]["station_coor"].y.toFixed(2)
                 const t  = full_station_list[j]["temperature"].toFixed(2)
-                let p  = full_station_list[j]["pressure"]
-                p = p === undefined ? "N/A" : p.toFixed(2)
                 let w  = full_station_list[j]["windspeed"]
                 w = w === undefined ? "N/A" : w.toFixed(2)
+                let p  = full_station_list[j]["pressure"]
+                p = p === undefined ? "N/A" : p.toFixed(2)
 
-                station_list.children[j].text = `${n} (${cx}, ${cy}): ${t}ºC, ${p}hPa, ${w}m/s`
+                // Print coordinates if needed.
+                // station_list.children[j].text = `${n} (${cx}, ${cy}): ${t}ºC, ${w}m/s, ${p}hPa`
+                station_list.children[j].text = `${n}: ${t}ºC, ${w}m/s, ${p}hPa`
             }
         }
     }
@@ -51,20 +53,15 @@ Window {
     Plugin {
         id: mapPlugin
         name: "osm"
-        PluginParameter {
-            name: "osm.geocoding.host"
-            value: "http://nominatim.openstreetmap.org/"
-        }
-
     }
 
     Map {
         id: map
         anchors.fill: parent
         plugin: mapPlugin
-        center: QtPositioning.coordinate(65.012755, 25.478793) // Oulu
+        center: QtPositioning.coordinate(65.012755, 25.478793) // Oulu.
         zoomLevel: 10
-        property var startCentroid
+        property geoCoordinate startCentroid
 
         PinchHandler {
             id: pinch
@@ -105,26 +102,26 @@ Window {
 
         MapQuickItem {
             id: station_for_temp
-            anchorPoint.x: img1.width/4
-            anchorPoint.y: img1.height
-            coordinate: QtPositioning.coordinate(59.91, 10.75)
-            sourceItem: Image { id: img1; height: 32; width: 32; source: "marker-red.png" }
+            anchorPoint.x: img_t.width/4
+            anchorPoint.y: img_t.height
+            coordinate: QtPositioning.coordinate(65.012755, 25.478793) // Default; overriden in onSendGoalList.
+            sourceItem: Image { id: img_t; height: 32; width: 32; source: "marker-red.png" }
         }
 
         MapQuickItem {
             id: station_for_wind
-            anchorPoint.x: img2.width/4
-            anchorPoint.y: img2.height
-            coordinate: QtPositioning.coordinate(61.91, 10.75)
-            sourceItem: Image { id: img2; height: 32; width: 32; source: "marker-blue.png" }
+            anchorPoint.x: img_w.width/4
+            anchorPoint.y: img_w.height
+            coordinate: QtPositioning.coordinate(65.012755, 25.478793) // Default; overriden in onSendGoalList.
+            sourceItem: Image { id: img_w; height: 32; width: 32; source: "marker-blue.png" }
         }
 
         MapQuickItem {
             id: station_for_pres
-            anchorPoint.x: img3.width/4
-            anchorPoint.y: img3.height
-            coordinate: QtPositioning.coordinate(68.91, 10.75)
-            sourceItem: Image { id: img3; height: 32; width: 32; source: "marker-green.png" }
+            anchorPoint.x: img_p.width/4
+            anchorPoint.y: img_p.height
+            coordinate: QtPositioning.coordinate(65.012755, 25.478793) // Default; overriden in onSendGoalList.
+            sourceItem: Image { id: img_p; height: 32; width: 32; source: "marker-green.png" }
         }
     }
 
@@ -149,15 +146,14 @@ Window {
         id: goal_list_enclosure
         anchors.top: station_list_enclosure.bottom
         width: Math.max(max_t.width, max_w.width, min_p.width)
-        height: max_t.height + max_w.height + min_p.height// + tsu.height
+        height: max_t.height + max_w.height + min_p.height
 
         Grid {
             id: goal_list
             columns: 1
-            Text { id: max_t; color: "red" }
-            Text { id: max_w; color: "blue" }
+            Text { id: max_t; color: "red"   }
+            Text { id: max_w; color: "blue"  }
             Text { id: min_p; color: "green" }
-            //Text { id: tsu; text : xx.height + " " + xx.width}
         }
     }
 }

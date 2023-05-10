@@ -6,19 +6,15 @@
 #include <QHash>
 #include <QString>
 #include <QPointF>
-#include <optional>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QVariant>
-//#include <QVariantHash>
-//#include <QVariantList>
 #include <QtQml/qqml.h>
 
 
 struct WeatherData {
     QString station_name;
     QPointF station_coor;
-    int measurement_time;
     float temperature;
     float windspeed;
     float pressure;
@@ -37,26 +33,36 @@ class WeatherApi : public QObject
 public:
     WeatherApi();
 
-    Q_PROPERTY(QVariantMap goal_list MEMBER _goal_list WRITE setGoalList NOTIFY sendGoalList)
+    Q_PROPERTY(QVariantMap goal_list MEMBER _goal_list
+                                     WRITE setGoalList
+                                     NOTIFY sendGoalList)
     QVariantMap _goal_list;
-    void setGoalList(QVariantMap new_list) { _goal_list = new_list; emit sendGoalList(_goal_list); }
 
-    Q_PROPERTY(QVariantList full_station_list MEMBER _full_station_list WRITE setFullStationList NOTIFY sendFullStationList)
+    Q_PROPERTY(QVariantList full_station_list MEMBER _full_station_list
+                                              WRITE setFullStationList
+                                              NOTIFY sendFullStationList)
     QVariantList _full_station_list;
-    void setFullStationList(QVariantList new_list) { _full_station_list = new_list; emit sendFullStationList(_full_station_list); }
+
+    void setFullStationList(QVariantList new_list);
+    void setGoalList(QVariantMap new_list);
 
 public slots:
-    // Activated once in the constructor and them by _timer. sends a request to API
+    // Sends a request to Ilmatieteenlaitos's API for 15 minutes worth of
+    //  temperature, pressure and windspeed measurements from the 6 closest
+    //  stations to Oulu.
+    // Activated once in the constructor and then every 30 seconds by _timer.
     void makeRequest();
 
-    // parse xml and extract raw data
+    // Parses XML from the API response and extracts raw data (station
+    //  coordinates, measurement order, and measurements proper) as strings.
     void getData(QNetworkReply* r);
 
-    // receive raw data and cleans it
+    // Converts the raw data into a usable format, keeping only the most
+    //  recent measurements.
     void parseData(QString locations, QString data);
 
-    // finds goal and sends everything to qml
-    void processData(QList<WeatherData>); //emits readyToDraw
+    // Finds goal stations and sends both them and the full station data to QML.
+    void processData(QList<WeatherData>);
 
 signals:
     // Emitted by getData(), caught by parseData().
