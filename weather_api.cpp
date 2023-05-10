@@ -68,7 +68,7 @@ void WeatherApi::makeRequest()
     // Set the start time to 15 minutes ago, in order to get at least one
     //  reading from all stations, since stations do not perform measurements
     //  at the same time.
-    // Use UTC+3 (Helsinki time), to be able to compare with real-time data.
+    // Use UTC+3 (Helsinki time) to be able to compare with real-time data.
     QDateTime start_time{QDateTime::currentDateTimeUtc()
             .addSecs(3 * 60 * 60)
             .addSecs(- 15 * 60)};
@@ -153,12 +153,17 @@ void WeatherApi::parseData(QString locations, QString raw_data)
 
     QHash<QPointF, int> station_time;
     bool replace = false;
-    //QPointF last_coordinate_seen;
+    QPointF last_coordinate_seen;
 
     for (int j = 0; j < pos_list.size(); j += 3) {
         QPointF station_coor{pos_list[j].toFloat(),
                              pos_list[j + 1].toFloat()};
         int measured_at = pos_list[j].toInt();
+
+        if (last_coordinate_seen == station_coor) {
+            continue;
+        }
+        last_coordinate_seen = station_coor;
 
         // Since it's very likely that we have more than one measurement by station, we should only keep the most recent one.
         // we can just at the last item because the stations come grouped
@@ -173,13 +178,15 @@ void WeatherApi::parseData(QString locations, QString raw_data)
         // not all stations have windspeed and pressure measurements, so they return nan.
         // the conversion doesn't fail, but we should know that we're dealing with nans, both to find the correct maximum/minimums, and to display the values properly
         float temperature = data_list[j].toFloat();
-        float pressure = data_list[j + 1].toFloat();
-        if (qIsNaN(pressure)) {
-            pressure = std::numeric_limits<float>::max();
-        }
+
         float windspeed = data_list[j + 2].toFloat();
         if (qIsNaN(windspeed)) {
             windspeed = std::numeric_limits<float>::min();
+        }
+
+        float pressure = data_list[j + 1].toFloat();
+        if (qIsNaN(pressure)) {
+            pressure = std::numeric_limits<float>::max();
         }
 
         WeatherData measurement{
@@ -207,51 +214,58 @@ void WeatherApi::parseData(QString locations, QString raw_data)
 
 void WeatherApi::processData(QList<WeatherData> measurements)
 {
-    // Send updated list of complete measurements first.
+    // Calculate goal list first.
+    auto max_t = std::max_element(measurements.cbegin(), measurements.cend(),
+        [](const WeatherData& w1, const WeatherData& w2) {
+            return w1.temperature < w2.temperature;
+    });
+    auto max_w = std::max_element(measurements.cbegin(), measurements.cend(),
+        [](const WeatherData& w1, const WeatherData& w2) {
+            return w1.windspeed < w2.windspeed;
+    });
+    auto min_p = std::min_element(measurements.cbegin(), measurements.cend(),
+        [](const WeatherData& w1, const WeatherData& w2) {
+            return w1.pressure < w2.pressure;
+    });
+
+    QVariantMap goal_list{
+        {"highest_temperature", QVariantList{max_t->station_name, max_t->station_coor}},
+        {"strongest_wind", QVariantList{max_w->station_name, max_w->station_coor}},
+        {"lowest_pressure", QVariantList{min_p->station_name, min_p->station_coor}}
+    };
+
+
+    // then Send updated list of complete measurements.
     QVariantList all_stations_data;
     for (const WeatherData& measurement : measurements) {
+        QVariant w_maybe_null = qFuzzyCompare(measurement.windspeed,
+                                              std::numeric_limits<float>::min() )
+                              ? QVariant{} : QVariant{measurement.windspeed};
+
+        QVariant p_maybe_null = qFuzzyCompare(measurement.pressure,
+                                              std::numeric_limits<float>::max() )
+                              ? QVariant{} : QVariant{measurement.pressure};
+
         all_stations_data.append(QVariantMap{
              {"station_name", measurement.station_name},
              {"station_coor", measurement.station_coor},
              {"temperature", measurement.temperature},
-             {"windspeed", measurement.windspeed},
-             {"pressure", measurement.pressure}
+             {"windspeed", w_maybe_null},
+             {"pressure", p_maybe_null}
         });
     }
-    setFullStationList(all_stations_data);
 
+    setFullStationList(all_stations_data);
+    setGoalList(goal_list);
+
+    /*
     for (auto& x : measurements) {
         std::cout << "(" << _coor_to_station_name[x.station_coor].toStdString() << ") " << x.station_coor.x() << ", " << x.station_coor.y() << ":\n";
         std::cout << "t = " << x.temperature << ", p = " << x.pressure << ", w = " << x.windspeed << "\n";
     }
 
-    // Then send goal list.
-    QPointF max_temperature_coor = std::max_element(measurements.cbegin(),
-                                                    measurements.cend(),
-        [](const WeatherData& w1, const WeatherData& w2) {
-            return w1.temperature < w2.temperature;
-    })->station_coor;
-
-    QPointF max_wind_coor = std::max_element(measurements.cbegin(),
-                                             measurements.cend(),
-        [](const WeatherData& w1, const WeatherData& w2) {
-            return w1.windspeed < w2.windspeed;
-    })->station_coor;
-
-    QPointF min_pressure_coor = std::min_element(measurements.cbegin(),
-                                                 measurements.cend(),
-        [](const WeatherData& w1, const WeatherData& w2) {
-            return w1.pressure < w2.pressure;
-    })->station_coor;
-
     std::cout << "highest temperature: " << _coor_to_station_name[max_temperature_coor].toStdString() << "\n"
               << "strongest wind: "      << _coor_to_station_name[max_wind_coor].toStdString() << "\n"
               << "lowest pressure: "     << _coor_to_station_name[min_pressure_coor].toStdString() << "\n";
-
-    QVariantMap goal_list{
-        {"highest_temperature", QVariantList{_coor_to_station_name[max_temperature_coor], max_temperature_coor}},
-        {"strongest_wind", QVariantList{_coor_to_station_name[max_wind_coor], max_wind_coor}},
-        {"lowest_pressure", QVariantList{_coor_to_station_name[min_pressure_coor], min_pressure_coor}}
-    };
-    setGoalList(goal_list);
+    */
 }

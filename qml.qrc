@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-		<file>marker.png</file>
+        <file>marker-blue.png</file>
+        <file>marker-red.png</file>
+        <file>marker-green.png</file>
     </qresource>
 </RCC>

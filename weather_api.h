@@ -36,32 +36,35 @@ public:
 
     Q_PROPERTY(QVariantMap goal_list MEMBER _goal_list WRITE setGoalList NOTIFY sendGoalList)
     QVariantMap _goal_list;
-    void setGoalList(QVariantMap new_list) { _goal_list = new_list; emit sendGoalList(_goal_list);}
+    void setGoalList(QVariantMap new_list) { _goal_list = new_list; emit sendGoalList(_goal_list); }
 
     Q_PROPERTY(QVariantList full_station_list MEMBER _full_station_list WRITE setFullStationList NOTIFY sendFullStationList)
     QVariantList _full_station_list;
-    void setFullStationList(QVariantList new_list) { _full_station_list = new_list; emit sendFullStationList(_full_station_list);}
+    void setFullStationList(QVariantList new_list) { _full_station_list = new_list; emit sendFullStationList(_full_station_list); }
 
 public slots:
-    // receives. emits
+    // Activated once in the constructor and them by _timer. sends a request to API
     void makeRequest();
-    // receives. emits processData
+
+    // parse xml and extract raw data
     void getData(QNetworkReply* r);
-    // receives.
+
+    // receive raw data and cleans it
     void parseData(QString locations, QString data);
-    // receives.
+
+    // finds goal and sends everything to qml
     void processData(QList<WeatherData>); //emits readyToDraw
 
 signals:
-    // Signals that
     // Emitted by getData(), caught by parseData().
     void readyToParseData(QString locations, QString raw_data);
 
     // Emitted by parseData(), caught by processData().
     void readyToProcessData(QList<WeatherData>);
 
-    // Emitted by processData()
-    void sendGoalList(QVariantMap new_l);
-    // sent by processData, caught by qml. Send only the final data (i.e., 3 stations); qml just draws.
-    void sendFullStationList(QVariantList bro);
+    // Emitted by processData(), caught in QML.
+    void sendGoalList(QVariantMap goal_list);
+
+    // Emitted by processData(), caught in QML.
+    void sendFullStationList(QVariantList full_station_list);
 };

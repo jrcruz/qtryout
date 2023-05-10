@@ -33,14 +33,16 @@ Window {
         }
 
         function onSendFullStationList(full_station_list) {
-            tsu.text = "KIHI"
             for (let j = 0; j < full_station_list.length; ++j) {
                 const n  = full_station_list[j]["station_name"]
                 const cx = full_station_list[j]["station_coor"].x.toFixed(2)
                 const cy = full_station_list[j]["station_coor"].y.toFixed(2)
                 const t  = full_station_list[j]["temperature"].toFixed(2)
-                const p  = full_station_list[j]["pressure"].toFixed(2)
-                const w  = full_station_list[j]["windspeed"].toFixed(2)
+                let p  = full_station_list[j]["pressure"]
+                p = p === undefined ? "N/A" : p.toFixed(2)
+                let w  = full_station_list[j]["windspeed"]
+                w = w === undefined ? "N/A" : w.toFixed(2)
+
                 station_list.children[j].text = `${n} (${cx}, ${cy}): ${t}ºC, ${p}hPa, ${w}m/s`
             }
         }
@@ -101,7 +103,7 @@ Window {
             anchorPoint.x: img1.width/4
             anchorPoint.y: img1.height
             coordinate: QtPositioning.coordinate(59.91, 10.75)
-            sourceItem: Image { id: img1; height: 32; width: 32; source: "marker.png" }
+            sourceItem: Image { id: img1; height: 32; width: 32; source: "marker-red.png" }
         }
 
         MapQuickItem {
@@ -109,7 +111,7 @@ Window {
             anchorPoint.x: img2.width/4
             anchorPoint.y: img2.height
             coordinate: QtPositioning.coordinate(61.91, 10.75)
-            sourceItem: Image { id: img2; height: 32; width: 32; source: "marker.png" }
+            sourceItem: Image { id: img2; height: 32; width: 32; source: "marker-blue.png" }
         }
 
         MapQuickItem {
@@ -117,13 +119,13 @@ Window {
             anchorPoint.x: img3.width/4
             anchorPoint.y: img3.height
             coordinate: QtPositioning.coordinate(68.91, 10.75)
-            sourceItem: Image { id: img3; height: 32; width: 32; source: "marker.png" }
+            sourceItem: Image { id: img3; height: 32; width: 32; source: "marker-green.png" }
         }
     }
 
     Grid {
         id: station_list
-        width: 40
+        width: Math.max(row1.width, row2.width, row3.width, row4.width, row5.width, row6.width)
         height: station_list.children[0].height * station_list.children.size
         columns: 1
         Text { id: row1 }
@@ -140,9 +142,9 @@ Window {
         height: max_t.height + max_w.height + min_p.height + tsu.height
         anchors.top: station_list.bottom
 
-        Text { id: max_t }
-        Text { id: max_w; anchors.top: max_t.bottom }
-        Text { id: min_p; anchors.top: max_w.bottom }
+        Text { id: max_t; color: "red" }
+        Text { id: max_w; color: "blue"; anchors.top: max_t.bottom }
+        Text { id: min_p; color: "green"; anchors.top: max_w.bottom }
         Text { id: tsu; anchors.top: min_p.bottom }
     }
 }
