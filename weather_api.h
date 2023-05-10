@@ -8,7 +8,10 @@
 #include <QPointF>
 #include <optional>
 #include <QNetworkAccessManager>
-#include <QVariantList>
+#include <QNetworkReply>
+#include <QVariant>
+//#include <QVariantHash>
+//#include <QVariantList>
 #include <QtQml/qqml.h>
 
 

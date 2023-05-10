@@ -1,12 +1,12 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
+import QtPositioning 6.5
+import QtLocation 6.5
 import jcruz.eu 1.0
-import QtLocation 5.15
-import QtPositioning 5.15
 
 Window {
-    width: Qt.platform.os == "android" ? Screen.width : 1080
-    height: Qt.platform.os == "android" ? Screen.height : 720
+    width: Qt.platform.os === "android" ? Screen.width : 1080
+    height: Qt.platform.os === "android" ? Screen.height : 720
     visible: true
     title: map.center + " zoom " + map.zoomLevel.toFixed(3)
            + " min " + map.minimumZoomLevel + " max " + map.maximumZoomLevel
@@ -51,6 +51,11 @@ Window {
     Plugin {
         id: mapPlugin
         name: "osm"
+        PluginParameter {
+            name: "osm.geocoding.host"
+            value: "http://nominatim.openstreetmap.org/"
+        }
+
     }
 
     Map {
@@ -123,28 +128,36 @@ Window {
         }
     }
 
-    Grid {
-        id: station_list
+    Rectangle {
+        id: station_list_enclosure
         width: Math.max(row1.width, row2.width, row3.width, row4.width, row5.width, row6.width)
-        height: station_list.children[0].height * station_list.children.size
-        columns: 1
-        Text { id: row1 }
-        Text { id: row2 }
-        Text { id: row3 }
-        Text { id: row4 }
-        Text { id: row5 }
-        Text { id: row6 }
+        height: station_list.children[0].height * station_list.children.length
+
+        Grid {
+            id: station_list
+            columns: 1
+            Text { id: row1 }
+            Text { id: row2 }
+            Text { id: row3 }
+            Text { id: row4 }
+            Text { id: row5 }
+            Text { id: row6 }
+        }
     }
 
     Rectangle {
-        id: goal_list
+        id: goal_list_enclosure
+        anchors.top: station_list_enclosure.bottom
         width: Math.max(max_t.width, max_w.width, min_p.width)
-        height: max_t.height + max_w.height + min_p.height + tsu.height
-        anchors.top: station_list.bottom
+        height: max_t.height + max_w.height + min_p.height// + tsu.height
 
-        Text { id: max_t; color: "red" }
-        Text { id: max_w; color: "blue"; anchors.top: max_t.bottom }
-        Text { id: min_p; color: "green"; anchors.top: max_w.bottom }
-        Text { id: tsu; anchors.top: min_p.bottom }
+        Grid {
+            id: goal_list
+            columns: 1
+            Text { id: max_t; color: "red" }
+            Text { id: max_w; color: "blue" }
+            Text { id: min_p; color: "green" }
+            //Text { id: tsu; text : xx.height + " " + xx.width}
+        }
     }
 }

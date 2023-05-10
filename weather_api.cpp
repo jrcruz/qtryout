@@ -21,10 +21,21 @@ constexpr int OULU_MAX_STATIONS = 6;
 
 
 // Needed in order to store QPointF's in QHashes. We do seed + 1 in the second
-//  coordinate's hash to handle addition being commutative.
+//  coordinate's hash to handle addition being commutative (so
+//  hash Point(1,2) != hash Point(2,1)).
 uint qHash(QPointF p, uint seed)
 {
     return qHash(qHash(p.x(), seed) + qHash(p.y(), seed + 1), seed);
+}
+
+namespace std {
+template <> struct hash<QPointF>
+{
+    size_t operator()(const QPointF &p, size_t seed = 0) const
+    {
+        return qHash(qHash(p.x(), seed) + qHash(p.y(), seed + 1), seed);
+    }
+};
 }
 
 
@@ -98,11 +109,11 @@ void WeatherApi::getData(QNetworkReply* r)
         xml.readNext();
 
         // Station list incoming.
-        if (xml.name() == "Point") {
+        if (xml.name() == QStringLiteral("Point")) {
 
-            // Since the station coordinates don't change, only create station
-            //  map the first time this function is called (fills to
-            //  OULU_MAX_STATIONS the iteration before).
+            // Since the station coordinates don't change, only create the
+            //  coordinate to name map the first time this function is called
+            // (i.e., fills to OULU_MAX_STATIONS the iteration before).
             if (_coor_to_station_name.size() == OULU_MAX_STATIONS) {
                 xml.skipCurrentElement();
             }
@@ -128,14 +139,14 @@ void WeatherApi::getData(QNetworkReply* r)
         //  in this element.
         // Stations can appear more than once; this means that they have more
         //  than one measurement for the selected time period.
-        else if (xml.name() == "positions") {
+        else if (xml.name() == QStringLiteral("positions")) {
             locations = xml.readElementText();
             xml.skipCurrentElement();
         }
 
         // Single line with (temperature, pressure, wind speed) measurement
         //  triples, for each station in the order as they appear above.
-        else if (xml.name() == "doubleOrNilReasonTupleList") {
+        else if (xml.name() == QStringLiteral("doubleOrNilReasonTupleList")) {
             raw_data = xml.readElementText();
             xml.skipCurrentElement();
         }
@@ -155,6 +166,7 @@ void WeatherApi::parseData(QString locations, QString raw_data)
     bool replace = false;
     QPointF last_coordinate_seen;
 
+    // Position data and measurement data both come in triples.
     for (int j = 0; j < pos_list.size(); j += 3) {
         QPointF station_coor{pos_list[j].toFloat(),
                              pos_list[j + 1].toFloat()};
@@ -175,10 +187,13 @@ void WeatherApi::parseData(QString locations, QString raw_data)
         }
         station_time[station_coor] = measured_at;
 
-        // not all stations have windspeed and pressure measurements, so they return nan.
-        // the conversion doesn't fail, but we should know that we're dealing with nans, both to find the correct maximum/minimums, and to display the values properly
         float temperature = data_list[j].toFloat();
 
+        // Not all stations have windspeed and pressure measurements, in which
+        //  case the string is "NAN" and the conversion returns NaN (this is
+        //  not a failure). We turn them into float min and max to be the
+        //  identity for the max_element and min_element operations
+        //  further ahead.
         float windspeed = data_list[j + 2].toFloat();
         if (qIsNaN(windspeed)) {
             windspeed = std::numeric_limits<float>::min();
@@ -214,7 +229,8 @@ void WeatherApi::parseData(QString locations, QString raw_data)
 
 void WeatherApi::processData(QList<WeatherData> measurements)
 {
-    // Calculate goal list first.
+    // Build goal list first. Turning Nans into float limits lets us use
+    //  compare all numbers without any additional work.
     auto max_t = std::max_element(measurements.cbegin(), measurements.cend(),
         [](const WeatherData& w1, const WeatherData& w2) {
             return w1.temperature < w2.temperature;
@@ -234,8 +250,12 @@ void WeatherApi::processData(QList<WeatherData> measurements)
         {"lowest_pressure", QVariantList{min_p->station_name, min_p->station_coor}}
     };
 
-
-    // then Send updated list of complete measurements.
+    // Build all stations list second. If windspeed and pressure were NaN, then
+    //  they were turned into std::numerical_limits<float>::min() and ::max(),
+    //  respectively, in order for the comparisons above to work.
+    // Since we don't want to display ::min() and ::max() to the user, we'll
+    //  build an empty QVariant to signal they were NaNs. QML can then
+    //  distinguish these values.
     QVariantList all_stations_data;
     for (const WeatherData& measurement : measurements) {
         QVariant w_maybe_null = qFuzzyCompare(measurement.windspeed,
