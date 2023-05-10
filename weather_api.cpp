@@ -65,7 +65,7 @@ void WeatherApi::makeRequest()
     // All available parameters:
     // https://opendata.fmi.fi/meta?observableProperty=observation&language=eng
 
-    QUrl endpoint("https://opendata.fmi.fi/wfs");
+    QUrl endpoint("http://opendata.fmi.fi/wfs");
     QUrlQuery query;
     query.addQueryItem("service", "WFS");
     query.addQueryItem("version", "2.0.0");
@@ -278,14 +278,14 @@ void WeatherApi::processData(QList<WeatherData> measurements)
     setFullStationList(all_stations_data);
     setGoalList(goal_list);
 
-    /*
+
     for (auto& x : measurements) {
         std::cout << "(" << _coor_to_station_name[x.station_coor].toStdString() << ") " << x.station_coor.x() << ", " << x.station_coor.y() << ":\n";
         std::cout << "t = " << x.temperature << ", p = " << x.pressure << ", w = " << x.windspeed << "\n";
     }
 
-    std::cout << "highest temperature: " << _coor_to_station_name[max_temperature_coor].toStdString() << "\n"
-              << "strongest wind: "      << _coor_to_station_name[max_wind_coor].toStdString() << "\n"
-              << "lowest pressure: "     << _coor_to_station_name[min_pressure_coor].toStdString() << "\n";
-    */
+    std::cout << "highest temperature: " << max_t->station_name.toStdString() << "\n"
+              << "strongest wind: "      << max_w->station_name.toStdString() << "\n"
+              << "lowest pressure: "     << min_p->station_name.toStdString() << "\n";
+
 }

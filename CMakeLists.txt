@@ -20,6 +20,11 @@ set(PROJECT_SOURCES
         qml.qrc
 )
 
+set(ANDROID_EXTRA_LIBS
+    /media/internal/android2/android_openssl/ssl_3/x86_64/libcrypto_3.so
+    /media/internal/android2/android_openssl/ssl_3/x86_64/libssl_3.so
+CACHE INTERNAL "")
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(qtryout
         MANUAL_FINALIZATION
@@ -32,7 +37,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 else()
     if(ANDROID)
         add_library(qtryout SHARED
-            ${PROJECT_SOURCES}
+            ${PROJECT_SOURCES} ${ANDROID_EXTRA_LIBS}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
@@ -52,6 +57,7 @@ set_target_properties(qtryout PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    QT_ANDROID_EXTRA_LIBS "${ANDROID_EXTRA_LIBS}"
 )
 
 install(TARGETS qtryout
