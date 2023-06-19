@@ -1,0 +1,35 @@
+getData:
+- xml.name() == QStringLiteral("") instead of QLatin1String(""):
+    QString::operator== takes a QLatin1String, not a QString, so a conversion happens.
+
+getData:
+- QHash::insert instead of QHash::emplace:
+    Wasn't available in Qt5, and I changed to Qt6 at the last minute.
+
+parseData:
+- QStringLists are not const.
+
+
+Structure:
+- Signals instead of returns:
+    My idea with using signals/slots instead of returns was to split the fetching/processing of data into smaller chunks, which could then be queued and executed without interrupting main GUI thread interactions for too long, thus reducing block on the main event loop.
+
+    This doesn't work because I did not connect the signals with Qt:QueuedConnection (but rather with Qt::DirectConnection (or Qt::AutoConnection, which defaults to DirectConnection)).
+
+    QtCreator identifies 10 threads, one of which is QQMLThread, so I'm not what that is.
+
+    The GUI thread doesn't block anyway because QML runs on a different thread (program spawns 10 threads, of note are qtryout main thread and QQMLThread)
+
+makeRequest:
+- Timeout on _net.get() not handled:
+    Default timeout is 30s. Should be much lower than the timer interval.
+    In any case, getData() is only called when the timeout expires, and with error != 0, so we never proceed.
+    When _net.get() is munching, the program is not blocked.
+
+WeatherApi:
+- Race condition on constructor:
+    makeRequest is called in WeatherApi's constructor. This sets off the process of fetching/processing the data, but at this point the QML engine object is not constructed yet! The program works because _net.get(QNetworkRequest{endpoint}) is asynchronous, makeRequest() ends and WeatherApi() finished soon after, where we then construct the QML engine in main().
+
+
+CMakeLists.txt:
+- Path to openssl is hard-coded.
